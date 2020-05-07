@@ -5,6 +5,8 @@ from PIL import ImageTk  # On importe la bibliothèque PIL
 import sys 
 from tkinter import *
 import random
+from tkinter.messagebox import showerror
+
 
 # Création de la fenêtre principale
 maFenetre = Tk()
@@ -26,11 +28,35 @@ def initReserve():
 def initPaie():
     return {0.01:0, 0.02:0, 0.05:0, 0.1:0, 0.2:0, 0.5:0, 1:0, 2:0}
 
+def init():
+    global sommeRestant
+    piecesReserve = initReserve()
+    piecesPaie = initPaie()
+    sommeRestant = 3.2
+    print(sommeRestant)
+    nombrePieces = 0
+    txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
+    txt_prix.set(sommeRestant)
+
+def new_function():
+    global sommeRestant
+    p = float(prix.get())
+    if p <=44.55:
+        sommeRestant = p
+        txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
+        txt_prix.set(sommeRestant)
+    else:
+        showerror('Attention',"Vous n'avez pas asser d'argent, vous devez vous limitez à 44,55€")
+
 # Les variables
 piecesReserve = initReserve()
 piecesPaie = initPaie()
 sommeRestant = 3.2
 nombrePieces = 0
+txt_infoMontant = StringVar()
+txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
+txt_prix = StringVar()
+txt_prix.set(sommeRestant)
 
 # Fonctions
 def dessinerPieces(reserve):
@@ -63,11 +89,12 @@ def dessinerPieces(reserve):
     for indice in range(reserve[2]):
         canvas.create_image(646,150-5*indice, image=image_2euro)
 
+
 def choisirPiece(event):
     '''
     réagit au choix d'une pièce : à compléter
     '''
-    global piecesReserve, piecesPaie, sommeRestant
+    global piecesReserve, piecesPaie, sommeRestant, nombrePieces, txt_infoMontant
     
     pieceChoisie = 0
     if event.x < 70:
@@ -86,21 +113,30 @@ def choisirPiece(event):
         pieceChoisie = 1
     else :
         pieceChoisie = 2
-    print(pieceChoisie)
     
-    for cle in piecesPaie.keys():
-        if pieceChoisie == cle:
-            piecesPaie[cle] +=1
-    print(piecesPaie)
+    print(sommeRestant)
+    if pieceChoisie <= sommeRestant:
+        for cle in piecesPaie.keys():
+            if pieceChoisie == cle:
+                piecesPaie[cle] +=1
 
-    for cle in piecesReserve.keys():
-        if pieceChoisie == cle:
-            piecesReserve[cle] -=1
-    dessinerPieces(piecesReserve)
+        for cle in piecesReserve.keys():
+            if pieceChoisie == cle:
+                piecesReserve[cle] -=1
+        dessinerPieces(piecesReserve)
 
-    sommeRestant -= pieceChoisie
-    sommeRestant = round(sommeRestant,2)
-    print (sommeRestant)
+        nombrePieces += 1
+        sommeRestant -= pieceChoisie
+        sommeRestant = round(sommeRestant,2)
+        
+        if sommeRestant == 0:
+            txt_infoMontant.set(f"Merci, vous avez donneé {nombrePieces} pièces. \n Vous pouvez choisir un nouvel article.")
+        else:
+            txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
+    else:
+        showerror('Attention', 'Nous ne rendons pas la monnaie!')
+
+
 
 
 # Réglage des paramètres de la fenêtre
@@ -112,9 +148,21 @@ canvas = Canvas(maFenetre, bg="black", width=700, height=200)
 canvas.pack()
 canvas.bind('<Button-1>',choisirPiece)
 
-####### PROGRAMME PRINCIPAL
+# PROGRAMME PRINCIPAL
 dessinerPieces(piecesReserve)
 
+# Les informations
+infoMontant = Label(maFenetre, textvariable = txt_infoMontant)
+infoMontant.pack(side=LEFT, padx=5, pady=5)
+
+prix = Entry(maFenetre, textvariable=txt_prix, width=5)
+prix.pack(side=RIGHT)
+
+reinitialiser = Button(maFenetre,text="Réinitialiser", command = init)
+reinitialiser.pack(side=RIGHT)
+
+new = Button(maFenetre, text='Nouvel article', command=new_function)
+new.pack()
 # Lancement du gestionnaire d'événements
 maFenetre.mainloop()
 sys.exit() 
