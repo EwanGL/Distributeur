@@ -32,29 +32,36 @@ def init():
     global sommeRestant
     piecesReserve = initReserve()
     piecesPaie = initPaie()
-    sommeRestant = 3.2
+    sommeRestant = 0
+    new.pack(padx=5,pady=5)
     print(sommeRestant)
     nombrePieces = 0
-    txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
+    txt_infoMontant.set(f"Vous pouvez choisir un nouvel article.")
     txt_prix.set(sommeRestant)
 
-def new_function():
+def choisirArticle():
     global sommeRestant
+    new.pack_forget()
     p = float(prix.get())
-    if p <=44.55:
+    if p <=20:
         sommeRestant = p
+        piecesReserve = initReserve()
+        piecesPaie = initPaie()
+        nombrePieces=0
         txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
         txt_prix.set(sommeRestant)
     else:
         showerror('Attention',"Vous n'avez pas asser d'argent, vous devez vous limitez à 44,55€")
 
 # Les variables
+new = Button(maFenetre, text='Nouvel article', command=choisirArticle)
 piecesReserve = initReserve()
 piecesPaie = initPaie()
-sommeRestant = 3.2
+sommeRestant = 0
+new.pack(side = BOTTOM, padx=5, pady=5)
 nombrePieces = 0
 txt_infoMontant = StringVar()
-txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
+txt_infoMontant.set(f"Vous pouvez choisir un nouvel article.")
 txt_prix = StringVar()
 txt_prix.set(sommeRestant)
 
@@ -114,7 +121,6 @@ def choisirPiece(event):
     else :
         pieceChoisie = 2
     
-    print(sommeRestant)
     if pieceChoisie <= sommeRestant:
         for cle in piecesPaie.keys():
             if pieceChoisie == cle:
@@ -131,13 +137,11 @@ def choisirPiece(event):
         
         if sommeRestant == 0:
             txt_infoMontant.set(f"Merci, vous avez donneé {nombrePieces} pièces. \n Vous pouvez choisir un nouvel article.")
+            new.pack(padx=5,pady=5)
         else:
             txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
     else:
         showerror('Attention', 'Nous ne rendons pas la monnaie!')
-
-
-
 
 # Réglage des paramètres de la fenêtre
 maFenetre.title("Mon distributeur")  # Le titre
@@ -161,8 +165,6 @@ prix.pack(side=RIGHT)
 reinitialiser = Button(maFenetre,text="Réinitialiser", command = init)
 reinitialiser.pack(side=RIGHT)
 
-new = Button(maFenetre, text='Nouvel article', command=new_function)
-new.pack()
 # Lancement du gestionnaire d'événements
 maFenetre.mainloop()
 sys.exit() 
