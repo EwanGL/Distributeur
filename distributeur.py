@@ -23,8 +23,8 @@ image_2euro = ImageTk.PhotoImage(file="2euro.png")
 
 # Mes fonctions d'initialisation
 def initReserve():
-    return {0.01:20, 0.02:5, 0.05:5, 0.1:5, 0.2:5, 0.5:5, 1:20, 2:20}
-
+    return {2:20, 1:20, 0.5:5, 0.2:5, 0.1:5, 0.05:5, 0.02:5, 0.01:20}
+    #return {0.01:20, 0.02:5, 0.05:5, 0.1:5, 0.2:5, 0.5:5, 1:20, 2:20}
 def initPaie():
     return {0.01:0, 0.02:0, 0.05:0, 0.1:0, 0.2:0, 0.5:0, 1:0, 2:0}
 
@@ -48,7 +48,7 @@ def choisirArticle():
         piecesReserve = initReserve()
         piecesPaie = initPaie()
         nombrePieces=0
-        txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
+        txt_infoMontant.set(f"Vous avez utilisez {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
         txt_prix.set(sommeRestant)
     else:
         showerror('Attention',"Vous n'avez pas asser d'argent, vous devez vous limitez à 44,55€")
@@ -143,6 +143,27 @@ def choisirPiece(event):
     else:
         showerror('Attention', 'Nous ne rendons pas la monnaie!')
 
+def AI():
+    global piecesPaie, sommeRestant, nombrePieces, piecesReserve, txt_infoMontant
+    piecesPaie = initPaie()
+    nombrePieces = 0
+    for cle in piecesReserve.keys():
+        while sommeRestant >= float(cle):
+            sommeRestant -= float(cle)
+            sommeRestant = round(sommeRestant,2)
+            nombrePieces += 1
+            piecesReserve[cle] -= 1
+            piecesPaie[cle] += 1
+    
+    listepiece=""
+    for cle, value in piecesPaie.items():
+        if piecesPaie[cle] != 0:
+            listepiece += f'{cle}: {value}'
+            listepiece += "\n"
+
+    txt_infoMontant.set(f"L'ordinateur à utilisé {nombrePieces} pièces.\n {listepiece}")
+    new.pack()
+
 # Réglage des paramètres de la fenêtre
 maFenetre.title("Mon distributeur")  # Le titre
 maFenetre.geometry('700x400+400+200')  # La position
@@ -164,6 +185,9 @@ prix.pack(side=RIGHT)
 
 reinitialiser = Button(maFenetre,text="Réinitialiser", command = init)
 reinitialiser.pack(side=RIGHT)
+
+ordinateur = Button(maFenetre, text="Choix de l'ordinateur", command=AI)
+ordinateur.pack()
 
 # Lancement du gestionnaire d'événements
 maFenetre.mainloop()
