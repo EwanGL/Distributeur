@@ -1,12 +1,11 @@
-# Auteur Ewan GRIGNOUX LEVERT
+# Auteur Pascal VINCENT & Ewan GRIGNOUX LEVERT
 # coding: utf-8
-# 
+# mai 2020
 from PIL import ImageTk  # On importe la bibliothèque PIL
 import sys 
 from tkinter import *
 import random
 from tkinter.messagebox import showerror
-
 
 # Création de la fenêtre principale
 maFenetre = Tk()
@@ -24,46 +23,46 @@ image_2euro = ImageTk.PhotoImage(file="2euro.png")
 # Mes fonctions d'initialisation
 def initReserve():
     return {2:20, 1:20, 0.5:5, 0.2:5, 0.1:5, 0.05:5, 0.02:5, 0.01:20}
-    #return {0.01:20, 0.02:5, 0.05:5, 0.1:5, 0.2:5, 0.5:5, 1:20, 2:20}
+
 def initPaie():
     return {0.01:0, 0.02:0, 0.05:0, 0.1:0, 0.2:0, 0.5:0, 1:0, 2:0}
 
 def init():
     global sommeRestant
+
+    sommeRestant = 0
+    nombrePieces = 0
     piecesReserve = initReserve()
     piecesPaie = initPaie()
-    sommeRestant = 0
-    new.pack(padx=5,pady=5)
-    print(sommeRestant)
-    nombrePieces = 0
+    new.grid(row=1, column=1, padx=5, pady=5)
     txt_infoMontant.set(f"Vous pouvez choisir un nouvel article.")
     txt_prix.set(sommeRestant)
+    dessinerPieces(piecesReserve)
 
 def choisirArticle():
     global sommeRestant
+
     new.pack_forget()
     p = float(prix.get())
-    if p <=20:
+    if p <=20 and p>0:
         sommeRestant = p
         piecesReserve = initReserve()
         piecesPaie = initPaie()
-        nombrePieces=0
+        nombrePieces = 0
         txt_infoMontant.set(f"Vous avez utilisez {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
         txt_prix.set(sommeRestant)
     else:
-        showerror('Attention',"Vous n'avez pas asser d'argent, vous devez vous limitez à 44,55€")
+        showerror('Attention',"Le prix doit être compris entre 0.01€ et 20 €")
 
 # Les variables
-new = Button(maFenetre, text='Nouvel article', command=choisirArticle)
+sommeRestant = 0
+nombrePieces = 0
 piecesReserve = initReserve()
 piecesPaie = initPaie()
-sommeRestant = 0
-new.pack(side = BOTTOM, padx=5, pady=5)
-nombrePieces = 0
-txt_infoMontant = StringVar()
-txt_infoMontant.set(f"Vous pouvez choisir un nouvel article.")
 txt_prix = StringVar()
 txt_prix.set(sommeRestant)
+txt_infoMontant = StringVar()
+txt_infoMontant.set(f"Vous pouvez choisir un nouvel article.")
 
 # Fonctions
 def dessinerPieces(reserve):
@@ -96,11 +95,7 @@ def dessinerPieces(reserve):
     for indice in range(reserve[2]):
         canvas.create_image(646,150-5*indice, image=image_2euro)
 
-
 def choisirPiece(event):
-    '''
-    réagit au choix d'une pièce : à compléter
-    '''
     global piecesReserve, piecesPaie, sommeRestant, nombrePieces, txt_infoMontant
     
     pieceChoisie = 0
@@ -137,14 +132,15 @@ def choisirPiece(event):
         
         if sommeRestant == 0:
             txt_infoMontant.set(f"Merci, vous avez donneé {nombrePieces} pièces. \n Vous pouvez choisir un nouvel article.")
-            new.pack(padx=5,pady=5)
+            new.grid(row=1, column=1, padx=5, pady=5)
         else:
             txt_infoMontant.set(f"Vous avez donneé {nombrePieces} pièces. \n Il vous reste {sommeRestant}€ à payer.")
     else:
         showerror('Attention', 'Nous ne rendons pas la monnaie!')
 
-def AI():
+def Ordinateur():
     global piecesPaie, sommeRestant, nombrePieces, piecesReserve, txt_infoMontant
+
     piecesPaie = initPaie()
     nombrePieces = 0
     for cle in piecesReserve.keys():
@@ -154,6 +150,7 @@ def AI():
             nombrePieces += 1
             piecesReserve[cle] -= 1
             piecesPaie[cle] += 1
+            dessinerPieces(piecesReserve)
     
     listepiece=""
     for cle, value in piecesPaie.items():
@@ -162,7 +159,7 @@ def AI():
             listepiece += "\n"
 
     txt_infoMontant.set(f"L'ordinateur à utilisé {nombrePieces} pièces.\n {listepiece}")
-    new.pack()
+    new.grid(row=1, column=1, padx=5, pady=5)
 
 # Réglage des paramètres de la fenêtre
 maFenetre.title("Mon distributeur")  # Le titre
@@ -170,24 +167,27 @@ maFenetre.geometry('700x400+400+200')  # La position
 maFenetre.configure(bg = 'red')  # la couleur de fond
 
 canvas = Canvas(maFenetre, bg="black", width=700, height=200)
-canvas.pack()
+canvas.grid(row=0, columnspan=3, padx=5, pady=5)
 canvas.bind('<Button-1>',choisirPiece)
 
 # PROGRAMME PRINCIPAL
 dessinerPieces(piecesReserve)
 
-# Les informations
+# Interface
+new = Button(maFenetre, text='Nouvel article', command=choisirArticle)
+new.grid(row=1, column=1, padx=5, pady=5)
+
 infoMontant = Label(maFenetre, textvariable = txt_infoMontant)
-infoMontant.pack(side=LEFT, padx=5, pady=5)
+infoMontant.grid(row=1, column=0, padx=5, pady=5)
 
 prix = Entry(maFenetre, textvariable=txt_prix, width=5)
-prix.pack(side=RIGHT)
+prix.grid(row=1, column=2, padx=5, pady=5)
 
 reinitialiser = Button(maFenetre,text="Réinitialiser", command = init)
-reinitialiser.pack(side=RIGHT)
+reinitialiser.grid(row=2, column=2, padx=5, pady=5)
 
-ordinateur = Button(maFenetre, text="Choix de l'ordinateur", command=AI)
-ordinateur.pack()
+ordinateur = Button(maFenetre, text="Choix de l'ordinateur", command=Ordinateur)
+ordinateur.grid(row=2, column=1, padx=5, pady=5)
 
 # Lancement du gestionnaire d'événements
 maFenetre.mainloop()
